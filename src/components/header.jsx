@@ -16,7 +16,7 @@ import { LinkIcon } from "lucide-react";
 
 const Header = () => {
   const naviagte = useNavigate();
-  const user = true;
+  const user = false;
 
   return (
     <nav className="py-4 flex items-center justify-between">
