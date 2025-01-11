@@ -1,7 +1,3 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,55 +6,68 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { LogOut } from "lucide-react";
-import { LinkIcon } from "lucide-react";
+import {logout} from "@/db/apiAuth";
+import useFetch from "@/hooks/use-fetch";
+import {Avatar, AvatarFallback, AvatarImage} from "@radix-ui/react-avatar";
+import {LinkIcon, LogOut} from "lucide-react";
+import {Link, useNavigate} from "react-router-dom";
+import {BarLoader} from "react-spinners";
+import {Button} from "./ui/button";
+import {UrlState} from "@/context";
 
 const Header = () => {
-  const naviagte = useNavigate();
-  const user = false;
+  const {loading, fn: fnLogout} = useFetch(logout);
+  const navigate = useNavigate();
+
+  const {user, fetchUser} = UrlState();
 
   return (
-    <nav className="py-4 flex items-center justify-between">
-      <Link to="/">
-        <img src="/logo (2).png" className="h-16" alt="Trimrr Logo" />
-      </Link>
-
-      <div>
-        {!user ? (
-          <Button
-            onClick={() => naviagte("/auth")}
-            className="bg-white text-black"
-          >
-            Login
-          </Button>
-        ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger className="w-10 rounded-full overflow-hidden">
-              <Avatar>
-                <AvatarImage
-                  className="h-10 w-10"
-                  src="https://github.com/shadcn.png"
-                />
-                <AvatarFallback>VS</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Vansh Shah</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LinkIcon className="mr-2 h-4 w-4" />
-                My Links
+    <>
+      <nav className="py-4 flex justify-between items-center">
+        <Link to="/">
+          <img src="/logo (2).png" className="h-16" alt="Trimrr Logo" />
+        </Link>
+        <div className="flex gap-4">
+          {!user ? (
+            <Button onClick={() => navigate("/auth")}>Login</Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="w-10 rounded-full overflow-hidden">
+                <Avatar>
+                  <AvatarImage src={user?.user_metadata?.profile_pic} />
+                  <AvatarFallback>PA</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>
+                  {user?.user_metadata?.name}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link to="/dashboard" className="flex">
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    My Links
+                  </Link>
                 </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-400">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
-    </nav>
+                <DropdownMenuItem
+                  onClick={() => {
+                    fnLogout().then(() => {
+                      fetchUser();
+                      navigate("/");
+                    });
+                  }}
+                  className="text-red-400"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </nav>
+      {loading && <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />}
+    </>
   );
 };
 
