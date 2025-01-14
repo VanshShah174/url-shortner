@@ -40,7 +40,7 @@ const LinkCard = ({ url, fetchUrls }) => {
           https://trimrr.in/{url?.custom_url ? url?.custom_url : url.short_url}
         </span>
         <span className="flex items-center gap-1 hover:underline cursor-pointer">
-          {url?.original}
+          {url?.original_url}
         </span>
         <span className="flex items-end font-extrabold text-sm flex-1">{new Date(url?.created_at).toLocaleString()}</span>
       </Link>
