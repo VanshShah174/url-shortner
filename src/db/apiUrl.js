@@ -1,3 +1,4 @@
+import { UAParser } from "ua-parser-js";
 import supabase, { supabaseUrl } from "./supabase";
 
 export async function getUrls(user_id) {
@@ -61,4 +62,43 @@ export async function getUrls(user_id) {
     }
   
     return data;
+  }
+
+
+  export async function getLongUrl(id) {
+    let {data, error} = await supabase
+      .from("urls")
+      .select("id, original_url")
+      .or(`$short_url.eq.${id},custom_url.eq.${id}`)
+      .single()
+
+  
+    if (error) {
+      console.error(error);
+      throw new Error("Error fetching short link");
+    }
+  
+    return data;
+  }
+
+  const parser = new UAParser()
+
+  export const storeClicks = async ({id, original_url}) => {
+    try {
+      const res = parser.getResult();
+      const device = res.type || "desktop";
+
+      const response = await fetch("https://ipapi.co/json");
+      const { city, country_name:country } = await response.json();
+
+      await supabase.from("clicks").insert({
+        url_id: id,
+        city: city,
+        country: country,
+        device: device,
+      })
+
+    } catch (error) {
+      
+    }
   }
